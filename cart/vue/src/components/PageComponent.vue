@@ -2,9 +2,9 @@
   <div class="bg-grey-lighten-4 h-100" >
     <header class=" px-5 py-4">
         <div class="d-flex d-flex justify-space-between">
-          <h1 class="">
+          <div class=" text-lg-h4 text-md-h4 text-sm-h4 text-h5 font-weight-bold ">
             {{ title }}
-          </h1>
+          </div>
           <slot name="header"></slot>
         </div>
       </header>

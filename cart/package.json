@@ -10,6 +10,7 @@
         "vite": "^4.0.0"
     },
     "dependencies": {
+        "laravel-precognition-vue": "^0.4.1",
         "uuid": "^9.0.0"
     }
 }

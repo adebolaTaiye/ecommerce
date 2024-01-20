@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 use Laravel\Scout\Searchable;
+use Laravel\Scout\Attributes\SearchUsingPrefix;
 
 class Product extends Model
 {

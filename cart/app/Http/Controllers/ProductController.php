@@ -21,6 +21,11 @@ class ProductController extends Controller
         return ProductResource::collection(Product::paginate(10));
     }
 
+    public function customerIndex()
+    {
+        return ProductResource::collection(Product::paginate(7));
+    }
+
     /**
      * Show the form for creating a new resource.
      */
@@ -57,6 +62,11 @@ class ProductController extends Controller
      * Display the specified resource.
      */
     public function show(Product $product)
+    {
+        return new ProductResource($product);
+    }
+
+    public function showForCustomer(Product $product)
     {
         return new ProductResource($product);
     }

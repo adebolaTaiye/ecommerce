@@ -1,7 +1,7 @@
 <template>
-  <v-app >
-    <default-bar />
+  <v-app>
     <SideBar/>
+    <default-bar />
     <default-view />
   </v-app>
 </template>
@@ -12,5 +12,5 @@
   import SideBar from "@/layouts/admin/Navigation.vue";
 </script>
 <style>
- 
+
 </style>

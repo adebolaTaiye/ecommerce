@@ -3,20 +3,19 @@
     <template v-slot:header>
       <v-btn
         color="blue-darken-3"
-        @click="dialog = !dialog"
+        @click="event"
         prepend-icon="mdi-plus"
         density="default"
         elevation="4"
-        >add new category</v-btn
+        >add category</v-btn
       >
     </template>
-    <div class="d-flex flex-column justify-center align-center" v-if="categories.loading">
+    <div class="d-flex justify-center align-center" v-if="categories.loading">
       <v-progress-circular :size="50" color="primary" :width="6" indeterminate>
       </v-progress-circular>
     </div>
     <div v-else>
-
-        <v-table density="compact">
+      <v-table density="compact">
         <thead>
           <tr>
             <th class="text-left">SN</th>
@@ -37,13 +36,16 @@
                   <v-card>
                     <v-card-actions>
                       <v-btn
+                        prepend-icon="mdi-square-edit-outline"
+                        class="bg-blue"
                         @click="(edit = !edit) && categoryStore.getCategory(category.id)"
                         >Edit</v-btn
                       >
                       <v-btn
+                        prepend-icon="mdi-delete"
+                        class="bg-red"
                         @click="
-                          categoryStore.deleteCategory(category.id) &&
-                            categoryStore.getCategories()
+                          deleteCategory(category.id)
                         "
                         >Delete</v-btn
                       >
@@ -58,12 +60,24 @@
       <v-dialog v-model="dialog" width="400">
         <v-form @submit.prevent="addNewCategory">
           <v-card class="px-6 py-8">
+            <transition-group name="fade">
+               <div
+            class="bg-red mb-4 px-4 py-2 rounded d-flex justify-space-between"
+            v-for="(error, index) in errors"
+            :key="index"
+          >
+            <div v-for="(singleError, index) in error" :key="index">
+              {{ singleError }}
+            </div>
+            <span><v-btn icon="mdi-alpha-x-circle" density="compact" @click="errors = null" variant="plain" ></v-btn></span>
+          </div>
+            </transition-group>
             <v-text-field
               label="enter category"
               density="compact"
               type="input"
               variant="outlined"
-              v-model="category.name"
+              v-model="cat.name"
               color="primary"
             ></v-text-field>
             <v-btn :loading="loading" type="submit" color="primary">Submit</v-btn>
@@ -78,7 +92,7 @@
               density="compact"
               type="input"
               variant="outlined"
-              v-model="category.name"
+              v-model="cat.name"
               color="primary"
             ></v-text-field>
             <v-btn :loading="loading" type="submit" color="primary">update</v-btn>
@@ -99,8 +113,18 @@ import { watch } from "@vue/runtime-core";
 const categoryStore = useCategoryStore();
 
 const cat = ref({
-  name: "",
+  name:"",
 });
+
+/*function resetForm() {
+  cat.value.name ='';
+}*/
+
+function event() {
+  dialog.value = !dialog.value;
+  errors.value = ''
+  categoryStore.category = null
+}
 
 watch(
   () => categoryStore.category,
@@ -111,6 +135,7 @@ watch(
   }
 );
 
+const errors = ref('')
 const loading = ref(false);
 
 categoryStore.getCategories();
@@ -118,19 +143,43 @@ categoryStore.getCategories();
 const addNewCategory = async () => {
   loading.value = true;
   try {
-    await categoryStore.saveCategory(category.value);
-    dialog.value= false
+    await categoryStore.saveCategory(cat.value);
+    dialog.value = false;
     categoryStore.getCategories();
     loading.value = false;
   } catch (err) {
     loading.value = false;
-    console.log(err);
+    if(err.response.status === 422){
+      errors.value = err.response.data.errors;
+    }
   }
 };
+
+function deleteCategory(id) {
+   if (confirm("are you sure you want to delete this category!!")){
+    categoryStore.deleteCategory(id)
+    categoryStore.getCategories()
+   }
+}
 
 const { category, categories } = storeToRefs(categoryStore);
 
 const dialog = ref(false);
 const edit = ref(false);
 </script>
+<style scoped>
+     .fade-enter-from {
+      opacity: 0
+    }
 
+    .fade-enter-active{
+        transition: 1s ease;
+    }
+
+    .fade-leave-to {
+      opacity: 0
+    }
+    .fade-leave-active{
+      transition: 0.5s ease;
+    }
+</style>

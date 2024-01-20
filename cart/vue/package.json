@@ -12,6 +12,8 @@
     "@mdi/font": "7.0.96",
     "axios": "^1.3.5",
     "core-js": "^3.8.3",
+    "gsap": "^3.12.2",
+    "laravel-precognition-vue": "^0.4.1",
     "pinia": "^2.0.23",
     "roboto-fontface": "*",
     "uuidv4": "^6.2.13",

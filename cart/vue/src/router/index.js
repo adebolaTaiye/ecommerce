@@ -4,7 +4,7 @@ import { useAuthStore } from '@/store/AuthStore'
 
 const routes = [
   {
-    path: '',
+    path: '/admin',
     redirect:'/dashboard',
     component: () => import('@/layouts/admin/Admin.vue'),
     meta:{requiresAuth: true},
@@ -29,8 +29,37 @@ const routes = [
         name: 'Products',
         component: () => import('@/views/Products.vue'),
       },
+      {
+        path:'/profile/:id',
+        name:'Profile',
+        component: () => import('@/views/AdminProfile.vue'),
+      }
     ],
   },
+
+  {
+    path:'/',
+    redirect:'/index',
+    component: () => import('@/layouts/customer/Customer.vue'),
+    children: [
+        {
+          path: '/index',
+          name: 'Index',
+          component: () => import('@/views/customerPages/Index.vue'),
+        },
+        {
+          path:'/product/:slug',
+          name:'ProductView',
+          component: () => import('@/views/customerPages/ProductView.vue')
+        },
+        {
+          path:'/index/cart',
+          name:'CartView',
+          component:() => import('@/views/customerPages/CartView.vue')
+        }
+    ]
+  },
+
   {
     path:'/adminlogin',
     meta: {isGuest: true},

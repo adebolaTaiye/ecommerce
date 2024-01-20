@@ -3,95 +3,121 @@
     <template v-slot:header>
       <v-btn
         color="blue-darken-3"
-        @click="dialog = !dialog"
+        @click="event"
         prepend-icon="mdi-plus"
         density="default"
-        elevation="4"
-        >add new product</v-btn
+        >add product</v-btn
       >
     </template>
 
     <!--display of properties -->
-    <div class="d-flex flex-column justify-center align-center" v-if="products.loading">
+    <div class=" d-flex flex-column justify-center align-center" v-if="products.loading">
       <v-progress-circular :size="50" color="primary" :width="6" indeterminate>
       </v-progress-circular>
     </div>
     <div v-else>
       <!-- search form -->
 
-          <v-text-field
-            density="compact"
-            color="primary"
-            label="search"
-            v-model="search"
-           @input="searchProduct"
-            variant="outlined"
-            type="search"
-          >
-          </v-text-field>
-        
+      <v-text-field
+        density="compact"
+        color="primary"
+        label="search"
+        v-model="search"
+        @input="searchProduct"
+        variant="outlined"
+        type="search"
+        append-inner-icon="mdi-magnify"
+      >
+      </v-text-field>
+
       <div class="py-4">
         <v-table density="compact">
-        <thead>
-          <tr>
-            <th class="text-left">ID</th>
-            <th class="text-left">Image</th>
-            <th class="text-left">Name</th>
-            <th class="text-left">Price</th>
-            <th class="text-left">Quantity</th>
-            <th class="text-left">Category</th>
-            <th class="text-left">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(product, index) in products.data" :key="index">
-            <td>{{ product.id }}</td>
-            <td><v-img :src="product.image_url" height="60"></v-img></td>
-            <td>{{ product.name }}</td>
-            <td>{{ product.price }}</td>
-            <td>{{ product.quantity }}</td>
-            <td>{{ product.category }}</td>
-            <td>
-              <div class="text-left">
-                <v-menu open-on-hover>
-                  <template v-slot:activator="{ props }">
-                    <v-icon v-bind="props" icon="mdi-dots-vertical"></v-icon>
-                  </template>
-                  <v-card>
-                    <v-card-actions>
-                      <v-btn
-                        @click="(dialog = !dialog) && productStore.getProduct(product.id)"
-                        >Edit</v-btn
-                      >
-                      <v-btn
-                        @click="
-                          productStore.deleteProduct(product.id) &&
-                            productStore.getProducts()
-                        "
-                        >Delete</v-btn
-                      >
-                    </v-card-actions>
-                  </v-card>
-                </v-menu>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </v-table>
-      <div class="text-center py-5">
-        <v-pagination
-          v-model="page"
-          :length="products.links.last_page"
-          @click="productStore.getPage(page)"
-          color="primary"
-        >
-        </v-pagination>
-      </div>
+          <thead>
+            <tr>
+              <th class="text-left">ID</th>
+              <th class="text-left">Image</th>
+              <th class="text-left">Name</th>
+              <th class="text-left">Price</th>
+              <th class="text-left">Quantity</th>
+              <th class="text-left">Category</th>
+              <th class="text-left">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(product, index) in products.data" :key="index">
+              <td>{{ product.id }}</td>
+              <td><v-img :src="product.image_url" height="60"></v-img></td>
+              <td>{{ product.name }}</td>
+              <td>{{ product.price }}</td>
+              <td>{{ product.quantity }}</td>
+              <td>{{ product.category }}</td>
+              <td>
+                <div class="text-left">
+                  <v-menu open-on-hover>
+                    <template v-slot:activator="{ props }">
+                      <v-icon v-bind="props" icon="mdi-dots-vertical"></v-icon>
+                    </template>
+                    <v-card>
+                      <v-card-actions>
+                        <v-btn
+                          prepend-icon="mdi-square-edit-outline"
+                          class="bg-blue"
+                          @click="
+                            (dialog = !dialog) && productStore.getProduct(product.id)
+                          "
+                          >Edit</v-btn
+                        >
+                        <v-btn
+                          prepend-icon="mdi-delete"
+                          class="bg-red"
+                          @click="deleteProduct(product.id)"
+                          >Delete</v-btn
+                        >
+                      </v-card-actions>
+                    </v-card>
+                  </v-menu>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </v-table>
+        <div class="text-center py-5">
+          <v-pagination
+            v-model="page"
+            :length="products.links.last_page"
+            @click="productStore.getPage(page)"
+            color="primary"
+            elevation="3"
+            active-color="blue"
+            variant="outlined"
+            border="3"
+          >
+          </v-pagination>
+        </div>
       </div>
     </div>
     <!--dialog for edit and creating products -->
     <v-dialog v-model="dialog" width="800">
       <v-card class="px-6 py-8 overflow-auto">
+        <transition-group name="fade">
+          <div
+            class="bg-red mb-4 px-4 py-2 rounded d-flex justify-space-between"
+            v-for="(error, index) in errors"
+            :key="index"
+          >
+            <div v-for="(singleError, index) in error" :key="index">
+              {{ singleError }}
+            </div>
+            <span
+              ><v-btn
+                icon="mdi-alpha-x-circle"
+                density="compact"
+                @click="errors = null"
+                variant="plain"
+              ></v-btn
+            ></span>
+          </div>
+        </transition-group>
         <v-card-text>
           <v-form @submit.prevent="addNewProduct">
             <v-text-field
@@ -232,7 +258,7 @@ const { products, currentProduct } = storeToRefs(productStore);
 
 const loading = ref(false);
 
-const search = ref('')
+const search = ref("");
 
 const product = ref({
   name: "",
@@ -245,17 +271,42 @@ const product = ref({
   colors: [],
 });
 
-const searchProduct =  async () => {
-  try{
-    await productStore.searchProduct(search.value)
-  }catch(err){
-    console.log(err)
+function resetForm() {
+  product.value.category = null;
+  product.value.name = null;
+  product.value.description = null;
+  product.value.quantity = null;
+  product.value.price = null;
+  product.value.image = null;
+  product.value.sizes = [];
+  product.value.colors = [];
+}
+
+function event() {
+  dialog.value = !dialog.value;
+  errors.value = "";
+  productStore.currentProduct.data.sizes= []
+  productStore.currentProduct.data.colors= []
+}
+
+function deleteProduct(product) {
+  if (confirm("are you sure you want to delete this product!!")) {
+    productStore.deleteProduct(product);
+    productStore.getProducts();
   }
 }
+
+const searchProduct = async () => {
+  try {
+    await productStore.searchProduct(search.value);
+  } catch (err) {
+    console.log(err);
+  }
+};
 const page = ref(1);
 
 watch(
-  () => productStore.currentProduct,
+  () => productStore.currentProduct.data,
   (newVal, oldVal) => {
     product.value = {
       ...JSON.parse(JSON.stringify(newVal)),
@@ -305,6 +356,7 @@ const removeColorOption = (index) => {
   getColorOptions().splice(index, 1);
 };
 const dialog = ref(false);
+const errors = ref("");
 
 const addNewProduct = async () => {
   loading.value = true;
@@ -314,7 +366,9 @@ const addNewProduct = async () => {
     productStore.getProducts();
     loading.value = false;
   } catch (err) {
-    console.log(err);
+    if (err.response.status === 422) {
+      errors.value = err.response.data.errors;
+    }
     loading.value = false;
   }
 };
@@ -322,3 +376,19 @@ const addNewProduct = async () => {
 categoryStore.getCategories();
 productStore.getProducts();
 </script>
+<style scoped>
+.fade-enter-from {
+  opacity: 0;
+}
+
+.fade-enter-active {
+  transition: 1s ease;
+}
+
+.fade-leave-to {
+  opacity: 0;
+}
+.fade-leave-active {
+  transition: 0.5s ease;
+}
+</style>
